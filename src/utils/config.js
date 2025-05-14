@@ -14,15 +14,15 @@ console.log(path.join(__dirname, '..', '..'));
 const configFile = path.join(__dirname, '..', '..', 'info.json');
 
 async function checkIfInfoExist() {
-  let res;
   try {
     console.log('INFO: check if there is your info already...');
-    res = await fs.promises.access(configFile, fs.constants.F_OK);
+    await fs.promises.access(configFile, fs.constants.F_OK);
     console.log('Already have your info');
   } catch (err) {
     console.log('Have not your info');
+    return false;
   }
-  return res;
+  return true;
 }
 
 const questions = ['your accessKeyId: ', 'your accessKeySecret: '];
@@ -62,4 +62,9 @@ function done(answers) {
   rl.close();
 }
 
-recordInfo(done);
+async function setConfig() {
+  let res = await checkIfInfoExist();
+  console.log(res);
+}
+
+module.exports = setConfig;
