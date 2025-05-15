@@ -1,3 +1,4 @@
+const logger = require('./logger.js');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -8,18 +9,18 @@ const rl = readline.createInterface({
 });
 
 /* for debug */
-console.log(__dirname);
-console.log(path.join(__dirname, '..', '..'));
+logger.debug(__dirname);
+logger.debug(path.join(__dirname, '..', '..'));
 
 const configFile = path.join(__dirname, '..', '..', 'info.json');
 
-async function checkIfInfoExist() {
+async function checkConfig() {
   try {
-    console.log('INFO: check if there is your info already...');
+    logger.info('checking config...');
     await fs.promises.access(configFile, fs.constants.F_OK);
-    console.log('Already have your info');
+    console.log('config exists');
   } catch (err) {
-    console.log('Have not your info');
+    console.log('no config');
     return false;
   }
   return true;
@@ -27,7 +28,7 @@ async function checkIfInfoExist() {
 
 const questions = ['your accessKeyId: ', 'your accessKeySecret: '];
 
-function recordInfo(done) {
+function getConfig(writeConfig) {
   const answers = [];
 
   function getInfo(answer) {
@@ -35,7 +36,7 @@ function recordInfo(done) {
       answers.push(answer.trim());
     }
     if (answers.length >= questions.length) {
-      return done(answers);
+      return writeConfig(answers);
     }
     const nextQuestion = questions[answers.length];
     rl.question(nextQuestion, getInfo);
@@ -44,27 +45,38 @@ function recordInfo(done) {
   rl.question(questions[0], getInfo);
 }
 
-function done(answers) {
+function writeConfig(answers) {
   /* for debug */
-  console.log(answers);
+  logger.debug(`answers: ${answers}`);
   const config = {
     accessKeyId: answers[0],
     accessKeySecret: answers[1],
   };
-  fs.promises.writeFile(configFile, JSON.stringify(config, null, 2), (err) => {
+  fs.writeFile(configFile, JSON.stringify(config, null, 2), (err) => {
     if (err) {
-      console.log('save config failed!');
-      console.log(`Err : ${err}`);
+      logger.fatal('saving config failed...');
+      logger.log(`Err : ${err}`);
+      console.log(config);
     } else {
-      console.log('save config successfully!');
+      logger.info('save config successfully!');
     }
   });
-  rl.close();
 }
 
 async function setConfig() {
-  let res = await checkIfInfoExist();
-  console.log(res);
+  let res = await checkConfig();
+  logger.debug(`check : ${res}`);
+  if (res === false) {
+    console.log('you should set your config first!');
+    getConfig(writeConfig);
+  } else {
+    rl.question('want to overwrite your config?(y/n) ', (data) => {
+      let ans = data.trim();
+      if (ans === 'y') {
+        getConfig(writeConfig);
+      }
+    });
+  }
 }
 
 module.exports = setConfig;
