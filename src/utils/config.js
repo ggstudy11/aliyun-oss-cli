@@ -8,16 +8,18 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const config = {};
+
 /* for debug */
 logger.debug(__dirname);
 logger.debug(path.join(__dirname, '..', '..'));
 
-const configFile = path.join(__dirname, '..', '..', 'info.json');
+const configPath = path.join(__dirname, '..', '..', 'info.json');
 
 async function checkConfig() {
   try {
     logger.info('checking config...');
-    await fs.promises.access(configFile, fs.constants.F_OK);
+    await fs.promises.access(configPath, fs.constants.F_OK);
     console.log('config exists');
   } catch (err) {
     console.log('no config');
@@ -48,11 +50,9 @@ function getConfig(writeConfig) {
 function writeConfig(answers) {
   /* for debug */
   logger.debug(`answers: ${answers}`);
-  const config = {
-    accessKeyId: answers[0],
-    accessKeySecret: answers[1],
-  };
-  fs.writeFile(configFile, JSON.stringify(config, null, 2), (err) => {
+  config.accessKeyId = answers[0];
+  config.accessKeySecret = answers[1];
+  fs.writeFile(configPath, JSON.stringify(config, null, 2), (err) => {
     if (err) {
       logger.fatal('saving config failed...');
       logger.log(`Err : ${err}`);
@@ -74,8 +74,24 @@ async function setConfig() {
       let ans = data.trim();
       if (ans === 'y') {
         getConfig(writeConfig);
+      } else {
+        readConfig();
       }
     });
+  }
+}
+
+async function readConfig() {
+  try {
+    const data = await fs.promises.readFile(configPath, 'utf8');
+    const obj = JSON.parse(data);
+    config.accessKeyId = obj.accessKeyId;
+    config.accessKeySecret = obj.accessKeySecret;
+    console.log('reading config successfully :', config);
+    return config;
+  } catch (err) {
+    console.error('reading config failed... :', err);
+    throw err;
   }
 }
 
