@@ -1,0 +1,26 @@
+{
+  "name": "aliyun-oss-cli",
+  "version": "1.0.0",
+  "description": "阿里云oss命令行工具",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggstudy11/aliyun-oss-cli.git"
+  },
+  "keywords": [
+    "aliyun",
+    "oss"
+  ],
+  "author": "ggstudy11",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ggstudy11/aliyun-oss-cli/issues"
+  },
+  "homepage": "https://github.com/ggstudy11/aliyun-oss-cli#readme",
+  "dependencies": {
+    "ali-oss": "^6.23.0"
+  }
+}
