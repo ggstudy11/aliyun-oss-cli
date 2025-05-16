@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/ggstudy11/aliyun-oss-cli#readme",
   "dependencies": {
-    "ali-oss": "^6.23.0"
+    "ali-oss": "^6.23.0",
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "figlet": "^1.8.1"
   }
 }

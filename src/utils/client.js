@@ -1,19 +1,25 @@
 const OSS = require('ali-oss');
+const { readConfig } = require('./config');
 
-function createClient(config) {
-  return new OSS({
-    accessKeyId: config.accessKeyId,
-    accessKeySecret: config.accessKeySecret,
-  });
+async function getClient(...args) {
+  const config = await readConfig();
+  if (!config) {
+    console.error('请先设置密钥配置');
+    return;
+  }
+
+  if (args.length == 0) {
+    return new OSS({
+      accessKeyId: config.accessKeyId,
+      accessKeySecret: config.accessKeySecret,
+    });
+  } else if (args.length == 2) {
+    return new OSS({
+      accessKeyId: config.accessKeyId,
+      accessKeySecret: config.accessKeySecret,
+      region: args[0],
+      bucket: args[1],
+    });
+  }
 }
-
-function createClientWithBucket(config, region, bucket) {
-  return new OSS({
-    accessKeyId: config.accessKeyId,
-    accessKeySecret: config.accessKeySecret,
-    region: region,
-    bucket: bucket,
-  });
-}
-
-module.exports = { createClient, createClientWithBucket };
+module.exports = getClient;

@@ -3,6 +3,7 @@
  */
 
 const readline = require('readline');
+const chalk = require('chalk');
 
 let rlInstance;
 
@@ -14,6 +15,7 @@ function getRlInstance() {
     rlInstance = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
+      prompt: chalk.white('oss-cli > '),
     });
   }
 

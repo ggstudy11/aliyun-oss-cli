@@ -69,7 +69,7 @@ async function setConfig() {
   if (!isConfigExist) {
     logger.info('你需要创建你的密钥配置文件');
     const answers = await getConfig();
-    return await writeConfig(answers);
+    await writeConfig(answers);
   } else {
     const promptUser = () => {
       return new Promise((resolve, reject) => {
@@ -84,10 +84,10 @@ async function setConfig() {
 
       if (userInput === 'y') {
         const answers = await getConfig();
-        return await writeConfig(answers);
+        await writeConfig(answers);
+        break;
       } else if (userInput === 'n') {
-        // 使用 === 进行比较
-        return await readConfig();
+        break;
       } else {
         logger.info('非法输入请重新输入');
       }
@@ -106,4 +106,4 @@ async function readConfig() {
   }
 }
 
-module.exports = setConfig;
+module.exports = { setConfig, readConfig };

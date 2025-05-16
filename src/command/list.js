@@ -1,4 +1,7 @@
-async function list(client) {
+const getClient = require('../utils/client');
+
+async function list() {
+  const client = await getClient();
   const resp = await client.listBuckets();
   const buckets = resp.buckets.map((bucket) => ({
     name: bucket.name,
