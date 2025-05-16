@@ -8,21 +8,19 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const config = {};
-
 /* for debug */
 logger.debug(__dirname);
 logger.debug(path.join(__dirname, '..', '..'));
 
-const configPath = path.join(__dirname, '..', '..', 'info.json');
+const confPath = path.join(__dirname, '..', '..', 'conf.json');
 
 async function checkConfig() {
   try {
-    logger.info('checking config...');
+    logger.info('检查密钥配置...');
     await fs.promises.access(configPath, fs.constants.F_OK);
-    console.log('config exists');
+    logger.info('已存在密钥配置');
   } catch (err) {
-    console.log('no config');
+    logger.info('密钥配置不存在');
     return false;
   }
   return true;
@@ -30,68 +28,84 @@ async function checkConfig() {
 
 const questions = ['your accessKeyId: ', 'your accessKeySecret: '];
 
-function getConfig(writeConfig) {
+async function getConfig() {
   const answers = [];
 
-  function getInfo(answer) {
-    if (answer) {
-      answers.push(answer.trim());
-    }
-    if (answers.length >= questions.length) {
-      return writeConfig(answers);
-    }
-    const nextQuestion = questions[answers.length];
-    rl.question(nextQuestion, getInfo);
+  /* 重构代码为promise形式 */
+  const askQuestion = (question) => {
+    return new Promise((resolve) => {
+      rl.question(question, (answer) => resolve(answer.trim()));
+    });
+  };
+
+  for (const question of questions) {
+    const answer = await askQuestion(question);
+    answers.push(answer);
   }
 
-  rl.question(questions[0], getInfo);
+  return answers;
 }
 
-function writeConfig(answers) {
+async function writeConfig(answers) {
   /* for debug */
   logger.debug(`answers: ${answers}`);
-  config.accessKeyId = answers[0];
-  config.accessKeySecret = answers[1];
-  fs.writeFile(configPath, JSON.stringify(config, null, 2), (err) => {
-    if (err) {
-      logger.fatal('saving config failed...');
-      logger.log(`Err : ${err}`);
-      console.log(config);
-    } else {
-      logger.info('save config successfully!');
-    }
-  });
+
+  const config = {
+    accessKeyId: answers[0],
+    accessKeySecret: answers[1],
+  };
+
+  try {
+    logger.info('保存密钥配置...');
+    await fs.promises.writeFile(confPath, JSON.stringify(config, null, 2));
+    logger.info('保存成功');
+    return config;
+  } catch (err) {
+    logger.error('保存失败');
+  }
 }
 
 async function setConfig() {
-  let res = await checkConfig();
-  logger.debug(`check : ${res}`);
-  if (res === false) {
-    console.log('you should set your config first!');
-    getConfig(writeConfig);
+  const isConfigExist = await checkConfig();
+  logger.debug(`config exists : ${isConfigExist}`);
+
+  if (!isConfigExist) {
+    logger.info('你需要创建你的密钥配置文件');
+    const answers = await getConfig();
+    return await writeConfig(answers);
   } else {
-    rl.question('want to overwrite your config?(y/n) ', (data) => {
-      let ans = data.trim();
-      if (ans === 'y') {
-        getConfig(writeConfig);
+    const promptUser = () => {
+      return new Promise((resolve, reject) => {
+        rl.question('是否重写你的配置文件？(y/n)', (answer) => {
+          resolve(answer.trim().toLowerCase());
+        });
+      });
+    };
+
+    while (true) {
+      const userInput = await promptUser();
+
+      if (userInput === 'y') {
+        const answers = await getConfig();
+        return await writeConfig(answers);
+      } else if (userInput === 'n') {
+        // 使用 === 进行比较
+        return await readConfig();
       } else {
-        readConfig();
+        logger.info('非法输入请重新输入');
       }
-    });
+    }
   }
 }
 
 async function readConfig() {
   try {
-    const data = await fs.promises.readFile(configPath, 'utf8');
-    const obj = JSON.parse(data);
-    config.accessKeyId = obj.accessKeyId;
-    config.accessKeySecret = obj.accessKeySecret;
-    console.log('reading config successfully :', config);
+    logger.info('读取配置...');
+    const data = await fs.promises.readFile(confPath, 'utf8');
+    const config = JSON.parse(data);
     return config;
   } catch (err) {
-    console.error('reading config failed... :', err);
-    throw err;
+    logger.error('读取配置失败');
   }
 }
 
