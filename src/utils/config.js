@@ -17,7 +17,7 @@ const confPath = path.join(__dirname, '..', '..', 'conf.json');
 async function checkConfig() {
   try {
     logger.info('检查密钥配置...');
-    await fs.promises.access(configPath, fs.constants.F_OK);
+    await fs.promises.access(confPath, fs.constants.F_OK);
     logger.info('已存在密钥配置');
   } catch (err) {
     logger.info('密钥配置不存在');
