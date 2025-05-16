@@ -1,6 +1,7 @@
 const path = require('path');
 
 async function updload(client, fileUrl) {
+  /* 切割文件名 */
   const filename = fileUrl.substring(fileUrl.lastIndexOf('/'));
 
   const headers = {
@@ -17,7 +18,7 @@ async function updload(client, fileUrl) {
   };
 
   const resp = await client.put(filename, path.normalize(fileUrl));
-  console.log(resp);
+  console.log(resp.url);
 }
 
 module.exports = updload;
