@@ -7,4 +7,13 @@ function createClient(config) {
   });
 }
 
-module.exports = { createClient };
+function createClientWithBucket(config, region, bucket) {
+  return new OSS({
+    accessKeyId: config.accessKeyId,
+    accessKeySecret: config.accessKeySecret,
+    region: region,
+    bucket: bucket,
+  });
+}
+
+module.exports = { createClient, createClientWithBucket };
