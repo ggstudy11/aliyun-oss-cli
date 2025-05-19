@@ -21,11 +21,11 @@ function welcome() {
         `${chalk.bold('版本')} : 1.0.0\n\n` +
         `${chalk.bold('说明')} : https://github.com/ggstudy11/aliyun-oss-cli/#readme\n\n` +
         `${chalk.bold('命令列表')} :\n` +
-        `list   - 列出所有bucket\n` +
-        `upload - 上传文件\n` +
-        'clear  - 清屏\n' +
-        `help   - 帮助文档\n` +
-        'exit   - 退出',
+        `${chalk.yellow('list')}   - 列出所有bucket\n` +
+        `${chalk.yellow('upload')} - 上传文件\n` +
+        `${chalk.yellow('clear')}  - 清屏\n` +
+        `${chalk.yellow('help')}   - 帮助文档\n` +
+        `${chalk.yellow('exit')}   - 退出`,
       {
         padding: 1,
         margin: 1,
